@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+{% extends 'blogApp/base.html' %}
+{% block content %}
+
+<h1 class="posttitle loader">{{postblog.title}}</h1>
+{% if postblog.published_date %}
+  <div class="date postdate">
+    {{postblog.published_date}}
+  </div>
+{% else %}
+<a class="btn btn-default"href="{% url 'blogApp:post_publish' pk=postblog.pk %}">Publish</a>
+{% endif %}
+
+<p class="postcontent">{{ postblog.text|safe|linebreaksbr }}</p>
+
+{% if user.is_authenticated %}
+  <a class="btb btn-primary"href="{% url 'blogApp:blog_update' pk=postblog.pk %}">Update</a>
+  <a class="btb btn-primary"href="{% url 'blogApp:blog_delete' pk=postblog.pk %}">Delete</a>
+{% endif %}
+
+<hr>
+<a class="btn btn-primary btn-comment "href="{% url 'blogApp:add_comment_to_post' pk=postblog.pk %}">Add Comments</a>
+<div class="container">
+  {% for comment in postblog.comments.all %}
+    {% if user.is_authenticated or comment.approved_comment %}
+      {{comment.create_date}}
+      {% if not comment.approved_comment %}
+        <a class="btb btn-primary"href="{% url 'blogApp:comment_remove' pk=comment.pk %}">Remove</a>
+        <a class="btb btn-primary"href="{% url 'blogApp:comment_approve' pk=comment.pk %}">Approve</a>
+      {% endif %}
+      <p>{{comment.text|safe|linebreaks}}</p>
+      <p>Posted By : {{ comment.author }}</p>
+      <br>
+    {% endif%}
+  {% empty %}
+    <p>No comments posted.</p>
+    {% endfor %}
+</div>
+{% endblock %}
